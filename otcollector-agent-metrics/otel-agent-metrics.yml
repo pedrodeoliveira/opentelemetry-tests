@@ -1,0 +1,23 @@
+receivers:
+  otlp:
+    protocols:
+        grpc:
+
+exporters:
+  otlp:
+    endpoint: "otel-collector:55680"
+    insecure: true
+
+  logging:
+    loglevel: debug
+
+processors:
+  batch:
+  queued_retry:
+
+service:
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [logging,otlp]
