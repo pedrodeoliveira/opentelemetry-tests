@@ -1,0 +1,25 @@
+receivers:
+  opencensus:
+
+exporters:
+  opencensus:
+    endpoint: "otel-collector:55678"
+    insecure: true
+
+  logging:
+    loglevel: debug
+
+processors:
+  batch:
+  queued_retry:
+
+service:
+  pipelines:
+    traces:
+      receivers: [opencensus]
+      processors: [batch, queued_retry]
+      exporters: [logging,opencensus]
+    metrics:
+      receivers: [opencensus]
+      processors: [batch]
+      exporters: [opencensus]

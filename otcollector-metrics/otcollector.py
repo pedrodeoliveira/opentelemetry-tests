@@ -1,4 +1,4 @@
-# otcollector-metrics.py
+# otcollector-agent-opencensus-metrics.py
 import time
 
 from opentelemetry import metrics, trace

@@ -36,7 +36,7 @@ meter = metrics.get_meter(__name__)
 # exporter every interval
 controller = PushController(meter, metric_exporter, 5)
 
-print('Started otcollector metrics ...')
+print('Started otcollector-agent-opencensus metrics ...')
 
 requests_counter = meter.create_metric(
     name="requests",

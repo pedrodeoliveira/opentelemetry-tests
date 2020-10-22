@@ -2,13 +2,18 @@ import os
 import time
 
 from opentelemetry import metrics
+from opentelemetry import trace
 # from opentelemetry.exporter.otlp.metrics_exporter import OTLPMetricsExporter
 from opentelemetry.exporter.opencensus.metrics_exporter import OpenCensusMetricsExporter
+from opentelemetry.exporter.opencensus.trace_exporter import OpenCensusSpanExporter
 from opentelemetry.sdk.metrics import Counter, MeterProvider, ValueRecorder, ValueObserver
 from opentelemetry.sdk.metrics.export.controller import PushController
 
 
 # get endpoint from env variable
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchExportSpanProcessor
+
 endpoint = os.getenv('OTEL_ENDPOINT', 'localhost:55678')
 
 # create the OLTP Metrics exporter
@@ -36,6 +41,23 @@ meter = metrics.get_meter(__name__)
 # controller collects metrics created from meter and exports it via the
 # exporter every interval
 controller = PushController(meter, metric_exporter, 5)
+
+
+trace.set_tracer_provider(TracerProvider())
+trace_exporter = OpenCensusSpanExporter(
+    endpoint=endpoint,
+    service_name='otel-app'
+)
+trace.get_tracer_provider().add_span_processor(
+    BatchExportSpanProcessor(trace_exporter)
+)
+tracer = trace.get_tracer(__name__)
+
+with tracer.start_as_current_span("foo"):
+    with tracer.start_as_current_span("bar"):
+        with tracer.start_as_current_span("baz"):
+            print("Hello world from OpenTelemetry Python!")
+
 
 print('Started otcollector-agent-opencensus metrics ...')
 
